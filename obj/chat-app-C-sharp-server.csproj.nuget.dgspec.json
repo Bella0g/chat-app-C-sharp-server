@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "/Users/isabellegustafsson/Documents/School/chat-app-C-sharp-server/chat-app-C-sharp-server.csproj": {}
+    "C:\\Users\\simin\\Desktop\\Grupp server\\chat-app-C-sharp-server\\chat-app-C-sharp-server.csproj": {}
   },
   "projects": {
-    "/Users/isabellegustafsson/Documents/School/chat-app-C-sharp-server/chat-app-C-sharp-server.csproj": {
+    "C:\\Users\\simin\\Desktop\\Grupp server\\chat-app-C-sharp-server\\chat-app-C-sharp-server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/isabellegustafsson/Documents/School/chat-app-C-sharp-server/chat-app-C-sharp-server.csproj",
+        "projectUniqueName": "C:\\Users\\simin\\Desktop\\Grupp server\\chat-app-C-sharp-server\\chat-app-C-sharp-server.csproj",
         "projectName": "chat-app-C-sharp-server",
-        "projectPath": "/Users/isabellegustafsson/Documents/School/chat-app-C-sharp-server/chat-app-C-sharp-server.csproj",
-        "packagesPath": "/Users/isabellegustafsson/.nuget/packages/",
-        "outputPath": "/Users/isabellegustafsson/Documents/School/chat-app-C-sharp-server/obj/",
+        "projectPath": "C:\\Users\\simin\\Desktop\\Grupp server\\chat-app-C-sharp-server\\chat-app-C-sharp-server.csproj",
+        "packagesPath": "C:\\Users\\simin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\simin\\Desktop\\Grupp server\\chat-app-C-sharp-server\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/isabellegustafsson/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\simin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -37,6 +39,12 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.23.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -53,7 +61,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
