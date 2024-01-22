@@ -68,11 +68,19 @@ namespace chat_server_c
                 while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     //Konverterar den inkommande byte-arrayn till en sträng.
-                    string registrationData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    string userData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
 
+                    string[] dataParts = userData.Split('.');
+                    string dataType = dataParts[0];
 
-                    //Hanterar registreringsdatan från klienten.
-                    LogIn(registrationData);
+                    if (dataType == "REGISTER")
+                    {
+                        ProcessRegistrationData(dataParts[1]);
+                    }
+                    else if (dataType == "LOGIN")
+                    {
+                        LogIn(dataParts[1]);
+                    }
                 }
             }
             catch (Exception e)
@@ -125,14 +133,15 @@ namespace chat_server_c
                 return !string.IsNullOrWhiteSpace(str) && !str.Contains(" ") && !str.Contains(",");
             }
         }
-        static void LogIn(string registrationData)
+
+        static void LogIn(string loginData)
         {
             const string databaseString = "mongodb://localhost:27017";
             MongoClient dbClient = new MongoClient(databaseString);
             var database = dbClient.GetDatabase("Users");
             var collection = database.GetCollection<User>("users");
 
-            string[] data = registrationData.Split(',');
+            string[] data = loginData.Split(',');
             string username = data[0];
             string password = data[1];
 
@@ -149,7 +158,6 @@ namespace chat_server_c
                     Console.WriteLine("Invalid username or password");
                 }
             }
-
         }
     }
 }
