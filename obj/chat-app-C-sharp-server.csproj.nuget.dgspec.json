@@ -1,20 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\simin\\Desktop\\Grupp Server\\chat-app-C-sharp-server\\chat-app-C-sharp-server.csproj": {}
+    "C:\\Users\\Sandra\\Documents\\Backendutveckling 1\\chat-app-server\\chat-app-C-sharp-server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\simin\\Desktop\\Grupp Server\\chat-app-C-sharp-server\\chat-app-C-sharp-server.csproj": {
+    "C:\\Users\\Sandra\\Documents\\Backendutveckling 1\\chat-app-server\\chat-app-C-sharp-server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\simin\\Desktop\\Grupp Server\\chat-app-C-sharp-server\\chat-app-C-sharp-server.csproj",
+        "projectUniqueName": "C:\\Users\\Sandra\\Documents\\Backendutveckling 1\\chat-app-server\\chat-app-C-sharp-server.csproj",
         "projectName": "chat-app-C-sharp-server",
-        "projectPath": "C:\\Users\\simin\\Desktop\\Grupp Server\\chat-app-C-sharp-server\\chat-app-C-sharp-server.csproj",
-        "packagesPath": "C:\\Users\\simin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\simin\\Desktop\\Grupp Server\\chat-app-C-sharp-server\\obj\\",
+        "projectPath": "C:\\Users\\Sandra\\Documents\\Backendutveckling 1\\chat-app-server\\chat-app-C-sharp-server.csproj",
+        "packagesPath": "C:\\Users\\Sandra\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Sandra\\Documents\\Backendutveckling 1\\chat-app-server\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\simin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Sandra\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -61,7 +64,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

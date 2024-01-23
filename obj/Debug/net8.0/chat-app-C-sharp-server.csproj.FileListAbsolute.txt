@@ -60,3 +60,34 @@ C:\Users\danie\skola frontend\Backend 1\Gruppuppgift\Server\chat-app-C-sharp-ser
 C:\Users\danie\skola frontend\Backend 1\Gruppuppgift\Server\chat-app-C-sharp-server\obj\Debug\net8.0\chat-app-C-sharp-server.csproj.CopyComplete
 C:\Users\danie\skola frontend\Backend 1\Gruppuppgift\Server\chat-app-C-sharp-server\obj\Debug\net8.0\chat-app-C-sharp-server.genruntimeconfig.cache
 C:\Users\danie\skola frontend\Backend 1\Gruppuppgift\Server\chat-app-C-sharp-server\obj\Debug\net8.0\ref\chat-app-C-sharp-server.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\chat-app-C-sharp-server.exe
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\chat-app-C-sharp-server.deps.json
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\chat-app-C-sharp-server.runtimeconfig.json
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\chat-app-C-sharp-server.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\chat-app-C-sharp-server.pdb
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\AWSSDK.Core.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\AWSSDK.SecurityToken.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\DnsClient.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\MongoDB.Bson.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\MongoDB.Driver.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\MongoDB.Driver.Core.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\MongoDB.Libmongocrypt.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\SharpCompress.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\Snappier.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\ZstdSharp.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\runtimes\linux\native\libmongocrypt.so
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\runtimes\osx\native\libmongocrypt.dylib
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\bin\Debug\net8.0\runtimes\win\native\mongocrypt.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.csproj.AssemblyReference.cache
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.AssemblyInfoInputs.cache
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.AssemblyInfo.cs
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.csproj.CoreCompileInputs.cache
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.sourcelink.json
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.csproj.CopyComplete
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\refint\chat-app-C-sharp-server.dll
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.pdb
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\chat-app-C-sharp-server.genruntimeconfig.cache
+C:\Users\Sandra\Documents\Backendutveckling 1\chat-app-server\obj\Debug\net8.0\ref\chat-app-C-sharp-server.dll
