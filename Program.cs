@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Collections.Generic;
+using System.IO;
 
 
 namespace chat_server_c
@@ -18,8 +19,10 @@ namespace chat_server_c
 
         static void Main()
         {
+
             //Anger att tcpListener ska lyssna efter alla nätverksgränssnitt på port 27500.
             tcpListener = new TcpListener(IPAddress.Any, 27500);
+
 
             //CancellationToken instans för att se till att threads avslutas när programmet avslutas.
             CancellationTokenSource cts = new CancellationTokenSource();
@@ -75,17 +78,17 @@ namespace chat_server_c
 
                     if (dataType == "REGISTER")
                     {
-                        ProcessRegistrationData(dataParts[1]);
+                        ProcessRegistrationData(dataParts[1], stream);
                     }
                     else if (dataType == "LOGIN")
                     {
-                        LogIn(dataParts[1]);
+                        LogIn(dataParts[1], stream);
                     }
                 }
             }
             catch (Exception e)
             {
-                //Om något blir fel printas ett meddelande ut.
+                //Om något blir fel printas ett meddelande ut. HÄR BLIR NÅGOT FEL
                 Console.WriteLine($"Error: {e.Message}");
             }
             finally
@@ -93,16 +96,17 @@ namespace chat_server_c
                 //Stänger anslutningen till clienten.
                 client.Close();
             }
+
         }
 
         //Metod som sköter hanteringen av registreringsdata, sparar denna till databasen.
-        static void ProcessRegistrationData(string registrationData)
+        static void ProcessRegistrationData(string registrationData, NetworkStream stream)
         {
             //Delar upp registreringsdatan i delar baserat på kommatecken.
             //Det urpsrungliga formatet ser ut så här $"{regUsername},{regPassword}".
             //Så arrayn får 2 platser, username på plats [0] och password på [1].
             string[] data = registrationData.Split(',');
-
+            string reply = "";
             //Kontrollerar registreringsdatan i isValidString och kontrollerar att den är i 2 delar.
             if (IsValidString(data[0]) && IsValidString(data[1]) && data.Length == 2)
             {
@@ -119,12 +123,17 @@ namespace chat_server_c
                 };
 
                 collection.InsertOne(user);
-                Console.WriteLine($"User {data[0]} registered.");
+
+                reply = ($"User {data[0]} registered.");
+                byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
+                stream.Write(replyBuffer, 0, replyBuffer.Length);
             }
             else
             {
                 //Skriv ut felmeddelande om registreringsdatan är ogiltig.
-                Console.WriteLine("Invalid registration data or format.");
+                reply = "Invalid registration data or format.";
+                byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
+                stream.Write(replyBuffer, 0, replyBuffer.Length);
             }
 
             //Testar så att registreringsdatan inte är tom eller innehåller mellanslag eller kommatecken.
@@ -134,7 +143,7 @@ namespace chat_server_c
             }
         }
 
-        static void LogIn(string loginData)
+        static void LogIn(string loginData, NetworkStream stream)
         {
             const string databaseString = "mongodb://localhost:27017";
             MongoClient dbClient = new MongoClient(databaseString);
@@ -144,7 +153,7 @@ namespace chat_server_c
             string[] data = loginData.Split(',');
             string username = data[0];
             string password = data[1];
-
+            string reply = "";
             var user = collection.Find(u => u.Username == username && u.Password == password)
                 .Project(u => new { u.Username, u.Password })
                 .FirstOrDefault();
@@ -152,10 +161,17 @@ namespace chat_server_c
                 if (user != null)
                 {
                     Console.WriteLine($"Welcome, {user.Username}!");
+                    reply = ($"Welcome, {user.Username}!");
+                    byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
+                    stream.Write(replyBuffer, 0, replyBuffer.Length);
+
                 }
                 else
                 {
                     Console.WriteLine("Invalid username or password");
+                    reply = "Invalid username or password!";
+                    byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
+                    stream.Write(replyBuffer, 0, replyBuffer.Length);
                 }
             }
         }
