@@ -192,12 +192,12 @@ namespace chat_server_c
             string username = data[0];
             string message = data[1];
             var user = collection.Find(u => u.Username == username);
-                if(user != null)
+            if (user != null)
             {
 
             }
-                
-            
+
+
         }
     }
 
