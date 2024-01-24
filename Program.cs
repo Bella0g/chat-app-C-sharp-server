@@ -14,65 +14,51 @@ namespace chat_server_c
 {
     class Program
     {
-        //TcpListener för att hantera inkommande anslutningar.
-        static TcpListener? tcpListener;
+        static TcpListener? tcpListener; //TcpListener för att hantera inkommande anslutningar.
 
         static void Main()
         {
+            tcpListener = new TcpListener(IPAddress.Any, 27500); //Anger att tcpListener ska lyssna efter alla nätverksgränssnitt på port 27500.
 
-            //Anger att tcpListener ska lyssna efter alla nätverksgränssnitt på port 27500.
-            tcpListener = new TcpListener(IPAddress.Any, 27500);
-
-
-            //CancellationToken instans för att se till att threads avslutas när programmet avslutas.
-            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationTokenSource cts = new CancellationTokenSource(); //CancellationToken instans för att se till att threads avslutas när programmet avslutas.
 
             try
             {
-                //Startar TcpListener och printar ut att den lyssnar på den angivna porten.
-                tcpListener.Start();
+                tcpListener.Start(); //Startar TcpListener och printar ut att den lyssnar på den angivna porten.
                 Console.WriteLine("Server is listening on port 27500");
 
-                //Väntar på inkommande anslutningar, hanteras i en oändlig loop.
-                while (true)
+                while (true)//Väntar på inkommande anslutningar, hanteras i en oändlig loop.
                 {
-                    //Accepterar en inkommande TcpClient-anslutning.
-                    TcpClient client = tcpListener.AcceptTcpClient();
-                    //Skapar en separat thread för att hantera klienten och kunna fortsätta lyssna efter nya anslutningar.
-                    Thread clientThread = new Thread(() => HandleClient(client));
+                    TcpClient client = tcpListener.AcceptTcpClient();//Accepterar en inkommande TcpClient-anslutning.                    
+                    Thread clientThread = new Thread(() => HandleClient(client));//Skapar en separat thread för att hantera klienten och kunna fortsätta lyssna efter nya anslutningar.
                     clientThread.Start();
                 }
             }
             catch (Exception e)
             {
-                //Om något blir fel printas ett meddelande ut.
-                Console.WriteLine($"Error:{e.Message}");
+                Console.WriteLine($"Error:{e.Message}"); //Om något blir fel printas ett meddelande ut.
             }
             finally
             {
-                //Stänger av TcpListener och avbryter cts (threads) när programmet avslutas.
-                tcpListener.Stop();
+                tcpListener.Stop();  //Stänger av TcpListener och avbryter cts (threads) när programmet avslutas.
                 cts.Cancel();
             }
         }
 
-        //Metod för att hantera en enskild klientanslutning.
-        static void HandleClient(TcpClient client)
+
+        static void HandleClient(TcpClient client)  //Metod för att hantera en enskild klientanslutning.
         {
-            //Hämtar nätverksströmmen från klienten för dataöverföring.
-            NetworkStream stream = client.GetStream();
+            NetworkStream stream = client.GetStream(); //Hämtar nätverksströmmen från klienten för dataöverföring.
             byte[] buffer = new byte[1024];
 
             try
             {
                 int bytesRead;
 
-                //Läser in data från klienten så länge det finns data att läsa.
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    //Konverterar den inkommande byte-arrayn till en sträng.
-                    string userData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
 
+                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0) //Läser in data från klienten så länge det finns data att läsa.
+                {
+                    string userData = Encoding.ASCII.GetString(buffer, 0, bytesRead); //Konverterar den inkommande byte-arrayn till en sträng.
                     string[] dataParts = userData.Split('.');
                     string dataType = dataParts[0];
 
@@ -88,27 +74,26 @@ namespace chat_server_c
             }
             catch (Exception e)
             {
-                //Om något blir fel printas ett meddelande ut. HÄR BLIR NÅGOT FEL
-                Console.WriteLine($"Error: {e.Message}");
+                Console.WriteLine($"Error: {e.Message}");//Om något blir fel printas ett meddelande ut.
             }
             finally
             {
-                //Stänger anslutningen till clienten.
-                client.Close();
+                client.Close(); //Stänger anslutningen till clienten.
             }
 
         }
 
-        //Metod som sköter hanteringen av registreringsdata, sparar denna till databasen.
-        static void ProcessRegistrationData(string registrationData, NetworkStream stream)
+
+        static void ProcessRegistrationData(string registrationData, NetworkStream stream) //Metod som sköter hanteringen av registreringsdata, sparar denna till databasen.
         {
             //Delar upp registreringsdatan i delar baserat på kommatecken.
             //Det urpsrungliga formatet ser ut så här $"{regUsername},{regPassword}".
             //Så arrayn får 2 platser, username på plats [0] och password på [1].
             string[] data = registrationData.Split(',');
             string reply = "";
-            //Kontrollerar registreringsdatan i isValidString och kontrollerar att den är i 2 delar.
-            if (IsValidString(data[0]) && IsValidString(data[1]) && data.Length == 2)
+
+
+            if (IsValidString(data[0]) && IsValidString(data[1]) && data.Length == 2) //Kontrollerar registreringsdatan i isValidString och kontrollerar att den är i 2 delar.
             {
                 //Ansluter till MongoDB och lägger till användaren i databasen.
                 const string databaseString = "mongodb://localhost:27017";
@@ -130,8 +115,7 @@ namespace chat_server_c
             }
             else
             {
-                //Skriv ut felmeddelande om registreringsdatan är ogiltig.
-                reply = "Invalid registration data or format.";
+                reply = "Invalid registration data or format."; //Skriv ut felmeddelande om registreringsdatan är ogiltig.
                 byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
                 stream.Write(replyBuffer, 0, replyBuffer.Length);
             }
