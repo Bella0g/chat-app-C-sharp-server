@@ -84,6 +84,10 @@ namespace chat_server_c
                     {
                         LogIn(dataParts[1], stream);
                     }
+                    else if (dataType == "MESSAGE")
+                    {
+                        SaveMessage(dataParts[1], stream);
+                    }
                 }
             }
             catch (Exception e)
@@ -119,11 +123,12 @@ namespace chat_server_c
                 var user = new User
                 {
                     Username = data[0],
-                    Password = data[1]
+                    Password = data[1],
+                    Message = new List<string>()
                 };
 
                 collection.InsertOne(user);
-
+                Console.WriteLine($"User {data[0]} registered.");
                 reply = ($"User {data[0]} registered.");
                 byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
                 stream.Write(replyBuffer, 0, replyBuffer.Length);
@@ -131,6 +136,7 @@ namespace chat_server_c
             else
             {
                 //Skriv ut felmeddelande om registreringsdatan är ogiltig.
+                Console.WriteLine("Invalid registration data or format.");
                 reply = "Invalid registration data or format.";
                 byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
                 stream.Write(replyBuffer, 0, replyBuffer.Length);
@@ -160,7 +166,7 @@ namespace chat_server_c
             {
                 if (user != null)
                 {
-                    Console.WriteLine($"Welcome, {user.Username}!");
+                    Console.WriteLine($"Welcome, {user.Username}!"); // tabort
                     reply = ($"Welcome, {user.Username}!");
                     byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
                     stream.Write(replyBuffer, 0, replyBuffer.Length);
@@ -175,7 +181,26 @@ namespace chat_server_c
                 }
             }
         }
+        static void SaveMessage(string messageData, NetworkStream stream)
+        {
+            const string databaseString = "mongodb://localhost:27017";
+            MongoClient dbClient = new MongoClient(databaseString);
+            var database = dbClient.GetDatabase("Users");
+            var collection = database.GetCollection<User>("users");
+
+            string[] data = messageData.Split(',');
+            string username = data[0];
+            string message = data[1];
+            var user = collection.Find(u => u.Username == username);
+                if(user != null)
+            {
+
+            }
+                
+            
+        }
     }
+
 }
 
 /*const string clientString = "mongodb://localhost:27017";//Connection string
