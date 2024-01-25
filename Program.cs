@@ -56,7 +56,7 @@ namespace chat_server_c
                 cts.Cancel();
             }
         }
-
+        
         //Metod för att hantera en enskild klientanslutning.
         static void HandleClient(TcpClient client)
         {
@@ -169,15 +169,19 @@ namespace chat_server_c
             string password = data[1];
             string reply = "";
             var user = collection.Find(u => u.Username == username && u.Password == password)
-                .Project(u => new { u.Username, u.Password })
+                .Project(u => new { u.Username, u.Password, u.Message }) //Specify which properties that should be retrived
                 .FirstOrDefault();
             {
                 if (user != null)
                 {
-                    Console.WriteLine($"Welcome, {user.Username}!"); // tabort
-                    reply = ($"Welcome, {user.Username}!");
+                    reply = ($"Welcome, {user.Username}!\n\nMessage history:\n");
                     byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
                     stream.Write(replyBuffer, 0, replyBuffer.Length);
+
+                    foreach (var userMessage in user.Message) //Iterates through Messages property(the list) of the user
+                    {
+                        SendMessageToClient(stream, $"\n{username}: {userMessage}"); //Uses SendToClient method to send messages to client
+                    }
 
                 }
                 else
@@ -187,6 +191,7 @@ namespace chat_server_c
                     byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
                     stream.Write(replyBuffer, 0, replyBuffer.Length);
                 }
+
             }
         }
         static void SaveMessage(string messageData, NetworkStream stream)
@@ -211,6 +216,12 @@ namespace chat_server_c
             else { Console.WriteLine("User not found."); }
 
 
+        }
+
+        static void SendMessageToClient(NetworkStream stream, string data)
+        {
+            byte[] buffer = Encoding.ASCII.GetBytes(data);
+            stream.Write(buffer, 0, buffer.Length);
         }
 
 
