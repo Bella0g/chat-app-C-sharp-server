@@ -17,7 +17,7 @@ namespace chat_server_c
     {
         //TcpListener för att hantera inkommande anslutningar.
         static TcpListener? tcpListener;
-
+        static List<TcpClient> ConnectedClients = new List<TcpClient>();
         static void Main()
         {
 
@@ -37,11 +37,19 @@ namespace chat_server_c
                 //Väntar på inkommande anslutningar, hanteras i en oändlig loop.
                 while (true)
                 {
-                    //Accepterar en inkommande TcpClient-anslutning.
-                    TcpClient client = tcpListener.AcceptTcpClient();
-                    //Skapar en separat thread för att hantera klienten och kunna fortsätta lyssna efter nya anslutningar.
-                    Thread clientThread = new Thread(() => HandleClient(client));
-                    clientThread.Start();
+                    //IF  tcpListener.Pending
+                    if (tcpListener.Pending())
+                    {
+                        TcpClient client = tcpListener.AcceptTcpClient();
+                        Console.WriteLine("Client has connected");
+                        ConnectedClients.Add(client);
+                    }
+                    foreach (TcpClient client in ConnectedClients) 
+                    {
+                        HandleClient(client);
+                    }
+
+                    System.Threading.Thread.Sleep(100);
                 }
             }
             catch (Exception e)
@@ -56,40 +64,44 @@ namespace chat_server_c
                 cts.Cancel();
             }
         }
-        
+
         //Metod för att hantera en enskild klientanslutning.
         static void HandleClient(TcpClient client)
         {
+
+            if (client.Available == 0)
+            {
+                return;
+            }
             //Hämtar nätverksströmmen från klienten för dataöverföring.
             NetworkStream stream = client.GetStream();
             byte[] buffer = new byte[1024];
 
             try
             {
-                int bytesRead;
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
                 //Läser in data från klienten så länge det finns data att läsa.
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+
+                //Konverterar den inkommande byte-arrayn till en sträng.
+                string userData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+
+                string[] dataParts = userData.Split('.');
+                string dataType = dataParts[0];
+
+                if (dataType == "REGISTER")
                 {
-                    //Konverterar den inkommande byte-arrayn till en sträng.
-                    string userData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-
-                    string[] dataParts = userData.Split('.');
-                    string dataType = dataParts[0];
-
-                    if (dataType == "REGISTER")
-                    {
-                        ProcessRegistrationData(dataParts[1], stream);
-                    }
-                    else if (dataType == "LOGIN")
-                    {
-                        LogIn(dataParts[1], stream);
-                    }
-                    else if (dataType == "MESSAGE")
-                    {
-                        SaveMessage(dataParts[1], stream);
-                    }
+                    ProcessRegistrationData(dataParts[1], stream);
                 }
+                else if (dataType == "LOGIN")
+                {
+                    LogIn(dataParts[1], stream);
+                }
+                else if (dataType == "MESSAGE")
+                {
+                    SaveMessage(dataParts[1], stream);
+                }
+
             }
             catch (Exception e)
             {
@@ -171,27 +183,25 @@ namespace chat_server_c
             var user = collection.Find(u => u.Username == username && u.Password == password)
                 .Project(u => new { u.Username, u.Password, u.Message }) //Specify which properties that should be retrived
                 .FirstOrDefault();
+
+            if (user != null)
             {
-                if (user != null)
-                {
-                    reply = ($"Welcome, {user.Username}!\n\nMessage history:\n");
-                    byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
-                    stream.Write(replyBuffer, 0, replyBuffer.Length);
+                reply = ($"Welcome, {user.Username}!\n\nMessage history:\n");
+                byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
+                stream.Write(replyBuffer, 0, replyBuffer.Length);
 
-                    foreach (var userMessage in user.Message) //Iterates through Messages property(the list) of the user
-                    {
-                        SendMessageToClient(stream, $"\n{username}: {userMessage}"); //Uses SendToClient method to send messages to client
-                    }
-
-                }
-                else
+                foreach (var userMessage in user.Message) //Iterates through Messages property(the list) of the user
                 {
-                    Console.WriteLine("Invalid username or password");
-                    reply = "Invalid username or password!";
-                    byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
-                    stream.Write(replyBuffer, 0, replyBuffer.Length);
+                    SendMessageToClient(stream, $"\n{username}: {userMessage}"); //Uses SendToClient method to send messages to client
                 }
 
+            }
+            else
+            {
+                Console.WriteLine("Invalid username or password");
+                reply = "Invalid username or password!";
+                byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
+                stream.Write(replyBuffer, 0, replyBuffer.Length);
             }
         }
         static void SaveMessage(string messageData, NetworkStream stream)
