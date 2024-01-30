@@ -105,6 +105,10 @@ namespace chat_server_c
                         {
                             SaveMessage(dataParts[1], stream);
                         }
+                        else if (dataType == "LOGOUT")
+                        {
+                            RemoveClient(dataParts[1], stream, client);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -114,6 +118,7 @@ namespace chat_server_c
                 }
                 finally
                 {
+
                     //foreach (var entry in ConnectedUsers)
                     //{
                     //    if (entry.Value == stream)
@@ -202,7 +207,6 @@ namespace chat_server_c
                     foreach (var name in connectedUsers)
                     {
                         Console.WriteLine($"Username: {name.Value}");
-                        SendMessageToClient(stream);
                     }
 
                     if (user != null)
@@ -256,6 +260,19 @@ namespace chat_server_c
             {
                 byte[] buffer = Encoding.ASCII.GetBytes(data);
                 stream.Write(buffer, 0, buffer.Length);
+            }
+
+            static void RemoveClient(string data, NetworkStream stream, TcpClient client)
+            {
+                string username = data;
+                
+                connectedUsers.Remove(client);
+                
+                foreach(var user in connectedUsers)
+                {
+                    Console.WriteLine(user.Value);
+                }
+
             }
         }
     }
