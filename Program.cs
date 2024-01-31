@@ -206,7 +206,7 @@ namespace chat_server_c
 
                     foreach (var name in connectedUsers)
                     {
-                        Console.WriteLine($"Username: {name.Value}");
+                        Console.WriteLine($"{name.Value} is now online.");
                     }
 
                     if (user != null)
