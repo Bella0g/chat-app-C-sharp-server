@@ -201,35 +201,36 @@ namespace chat_server_c
                 var user = collection.Find(u => u.Username == username && u.Password == password)
                     .Project(u => new { u.Username, u.Password, u.Message }) //Specify which properties that should be retrived
                     .FirstOrDefault();
+
+                connectedUsers.Add(client, username);
+                foreach (var name in connectedUsers)
                 {
-                    connectedUsers.Add(client, username);
-
-                    foreach (var name in connectedUsers)
-                    {
-                        Console.WriteLine($"{name.Value} is now online.");
-                    }
-
-                    if (user != null)
-                    {
-                        reply = ($"Welcome, {user.Username}!\n\nMessage history:\n");
-                        byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
-                        stream.Write(replyBuffer, 0, replyBuffer.Length);
-
-                        foreach (var userMessage in user.Message) //Iterates through Messages property(the list) of the user
-                        {
-                            SendMessageToClient(stream, $"\n{username}: {userMessage}"); //Uses SendToClient method to send messages to client
-                        }
-                    }
-
-                    else
-                    {
-                        Console.WriteLine("Invalid username or password");
-                        reply = "Invalid username or password!";
-                        byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
-                        stream.Write(replyBuffer, 0, replyBuffer.Length);
-                    }
-
+                    Console.WriteLine($"{name.Value} is now online.");
                 }
+
+                if (user != null)
+                {
+                    BroadcastMessage($"BROADCAST.{username} is now online.\n");
+
+                    reply = ($"Welcome, {user.Username}!\n\nMessage history:\n");
+                    byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
+                    stream.Write(replyBuffer, 0, replyBuffer.Length);
+
+                    foreach (var userMessage in user.Message) //Iterates through Messages property(the list) of the user
+                    {
+                        SendMessageToClient(stream, $"\n{username}: {userMessage}"); //Uses SendToClient method to send messages to client
+                    }
+                }
+
+                else
+                {
+                    Console.WriteLine("Invalid username or password");
+                    reply = "Invalid username or password!";
+                    byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
+                    stream.Write(replyBuffer, 0, replyBuffer.Length);
+                }
+
+
             }
 
             static void SaveMessage(string messageData, NetworkStream stream)
@@ -270,6 +271,19 @@ namespace chat_server_c
                     var clientToRemove = connectedUsers.FirstOrDefault(x => x.Value == username).Key;
                     connectedUsers.Remove(clientToRemove);
                     Console.WriteLine($"{username} has logged out.");
+                }
+                foreach (var clientUsers in connectedUsers) //Iterates through Messages property(the list) of the user
+                {
+                    Console.WriteLine(clientUsers); //Uses SendToClient method to send messages to client
+                }
+            }
+            static void BroadcastMessage(string message)
+            {
+                foreach (var userStream in connectedUsers.Keys)
+                {
+                    NetworkStream stream = userStream.GetStream();
+                    byte[] buffer = Encoding.ASCII.GetBytes(message);
+                    stream.Write(buffer, 0, buffer.Length);
                 }
             }
 
