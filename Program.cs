@@ -262,18 +262,17 @@ namespace chat_server_c
                 stream.Write(buffer, 0, buffer.Length);
             }
 
-            static void RemoveClient(string data, NetworkStream stream, TcpClient client)
+            static void RemoveClient(string username, NetworkStream stream, TcpClient client)
             {
-                string username = data;
-                
-                connectedUsers.Remove(client);
-                
-                foreach(var user in connectedUsers)
+                if (connectedUsers.ContainsValue(username))
                 {
-                    Console.WriteLine(user.Value);
+                    // Remove the client using the username
+                    var clientToRemove = connectedUsers.FirstOrDefault(x => x.Value == username).Key;
+                    connectedUsers.Remove(clientToRemove);
+                    Console.WriteLine($"{username} has logged out.");
                 }
-
             }
+
         }
     }
 }
