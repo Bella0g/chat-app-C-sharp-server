@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml.Linq;
 
 
 namespace chat_server_c
@@ -41,6 +40,38 @@ namespace chat_server_c
                 }
                 Thread.Sleep(100);
             }
+
+            //    //CancellationToken instans för att se till att threads avslutas när programmet avslutas.
+            //    CancellationTokenSource cts = new CancellationTokenSource();
+
+            //    try
+            //    {
+            //        //Startar TcpListener och printar ut att den lyssnar på den angivna porten.
+            //        tcpListener.Start();
+            //        Console.WriteLine("Server is listening on port 27500");
+
+            //        //Väntar på inkommande anslutningar, hanteras i en oändlig loop.
+            //        while (true)
+            //        {
+            //            //Accepterar en inkommande TcpClient-anslutning.
+            //            TcpClient client = tcpListener.AcceptTcpClient();
+            //            //Skapar en separat thread för att hantera klienten och kunna fortsätta lyssna efter nya anslutningar.
+            //            Thread clientThread = new Thread(() => HandleClient(client));
+            //            clientThread.Start();
+            //        }
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        //Om något blir fel printas ett meddelande ut.
+            //        Console.WriteLine($"Error:{e.Message}");
+            //    }
+            //    finally
+            //    {
+            //        //Stänger av TcpListener och avbryter cts (threads) när programmet avslutas.
+            //        tcpListener.Stop();
+            //        cts.Cancel();
+            //    }
+            //}
 
             //Metod för att hantera en enskild klientanslutning.
             static void HandleClient(TcpClient client, NetworkStream stream)
@@ -172,17 +203,16 @@ namespace chat_server_c
                     .FirstOrDefault();
 
                 connectedUsers.Add(client, username);
-                
+                foreach (var name in connectedUsers)
+                {
+                    Console.WriteLine($"{name.Value} is now online.");
+                }
+
                 if (user != null)
                 {
-                    BroadcastMessage($"BROADCAST.Users online:");
-                    foreach (var name in connectedUsers)
-                    {
-                        Console.WriteLine($"{name.Value} is now online.");
-                        BroadcastMessage($"{name.Value}\n");
-                    }
+                    BroadcastMessage($"BROADCAST.{username} is now online.\n");
 
-                    reply = ($"\nWelcome, {user.Username}!\n\nMessage history:\n");
+                    reply = ($"Welcome, {user.Username}!\n\nMessage history:\n");
                     byte[] replyBuffer = Encoding.ASCII.GetBytes(reply);
                     stream.Write(replyBuffer, 0, replyBuffer.Length);
 
@@ -241,8 +271,6 @@ namespace chat_server_c
                     var clientToRemove = connectedUsers.FirstOrDefault(x => x.Value == username).Key;
                     connectedUsers.Remove(clientToRemove);
                     Console.WriteLine($"{username} has logged out.");
-                    BroadcastMessage($"BROADCAST.{username} is now offline.\n");
-
                 }
                 foreach (var clientUsers in connectedUsers) //Iterates through Messages property(the list) of the user
                 {
@@ -262,34 +290,3 @@ namespace chat_server_c
         }
     }
 }
-//    //CancellationToken instans för att se till att threads avslutas när programmet avslutas.
-//    CancellationTokenSource cts = new CancellationTokenSource();
-
-//    try
-//    {
-//        //Startar TcpListener och printar ut att den lyssnar på den angivna porten.
-//        tcpListener.Start();
-//        Console.WriteLine("Server is listening on port 27500");
-
-//        //Väntar på inkommande anslutningar, hanteras i en oändlig loop.
-//        while (true)
-//        {
-//            //Accepterar en inkommande TcpClient-anslutning.
-//            TcpClient client = tcpListener.AcceptTcpClient();
-//            //Skapar en separat thread för att hantera klienten och kunna fortsätta lyssna efter nya anslutningar.
-//            Thread clientThread = new Thread(() => HandleClient(client));
-//            clientThread.Start();
-//        }
-//    }
-//    catch (Exception e)
-//    {
-//        //Om något blir fel printas ett meddelande ut.
-//        Console.WriteLine($"Error:{e.Message}");
-//    }
-//    finally
-//    {
-//        //Stänger av TcpListener och avbryter cts (threads) när programmet avslutas.
-//        tcpListener.Stop();
-//        cts.Cancel();
-//    }
-//}
