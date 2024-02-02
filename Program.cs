@@ -175,12 +175,17 @@ class Program
         {
             connectedUsers.Add(client, username);
             reply = ($"\nWelcome, {user.Username}!\n\nMessage history:\n");
+            Console.WriteLine($"{username} has logged in.");
             SendMessageToClient(stream, reply);
 
             foreach (var userMessage in user.Message) //Iterates through Messages property(the list) of the user
             {
                 SendMessageToClient(stream, $"\n{username}: {userMessage}"); //Uses SendToClient method to send messages to client
             }
+            //foreach (var clientUsers in connectedUsers)
+            //{
+            //    Console.WriteLine($"{clientUsers.Value} has logged in.");
+            //}
         }
         else
         {
@@ -234,10 +239,10 @@ class Program
             connectedUsers.Remove(clientToRemove);
             Console.WriteLine($"{username} has logged out.");
         }
-        foreach (var clientUsers in connectedUsers) //Iterates through Messages property(the list) of the user
-        {
-            Console.WriteLine(clientUsers); //Uses SendToClient method to send messages to client
-        }
+        //foreach (var clientUsers in connectedUsers) 
+        //{
+        //    Console.WriteLine($"{clientUsers.Value} has logged out.");
+        //}
     }
 
 }
