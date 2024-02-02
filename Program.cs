@@ -200,6 +200,7 @@ class Program
         string[] data = messageData.Split(',');
         string username = data[0];
         string message = data[1];
+        string replyMessage = "";
 
         var filter = Builders<User>.Filter.Eq(u => u.Username, username);
         var user = collection.Find(filter).FirstOrDefault();
@@ -208,8 +209,14 @@ class Program
             var update = Builders<User>.Update.Push(u => u.Message, message);
             collection.UpdateOne(filter, update);
             Console.WriteLine("Message saved successfully.");
+            replyMessage = "Message saved successfully.";
+            SendMessageToClient(stream, replyMessage);
         }
-        else { Console.WriteLine("User not found."); }
+        else { 
+            Console.WriteLine($"{stream} User not found.");
+            replyMessage = "User not found.";
+            SendMessageToClient(stream, replyMessage);
+        }
     }
 
     static void SendMessageToClient(NetworkStream stream, string data)
