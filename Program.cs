@@ -14,12 +14,12 @@ using System.Xml.Linq;
 
 namespace chat_server_c;
 
-class Program
+class Server
 {
     //TcpListener för att hantera inkommande anslutningar.
     static TcpListener? tcpListener;
     private static Dictionary<TcpClient, string> connectedUsers = new Dictionary<TcpClient, string>();
-
+    private static IMongoCollection<User> collection;
 
     static void Main(string[] args)
     {
@@ -28,6 +28,7 @@ class Program
         tcpListener = new TcpListener(IPAddress.Any, 27500);
         tcpListener.Start();
         Console.WriteLine("Server is listening on port 27500");
+        Mongodb();
 
         while (true)
         {
@@ -43,7 +44,16 @@ class Program
         }
     }
 
-    //Metod för att hantera en enskild klientanslutning.
+    //MongoDB anslutning.
+    static void Mongodb()
+    {
+        const string databaseString = "mongodb://localhost:27017";
+        MongoClient dbClient = new MongoClient(databaseString);
+        var database = dbClient.GetDatabase("Users");
+        collection = database.GetCollection<User>("users");
+    }
+
+    //Hanterar enskilda klientanslutningar.
     static void HandleClient(TcpClient client, NetworkStream stream)
     {
         //Hämtar nätverksströmmen från klienten för dataöverföring.
@@ -104,7 +114,7 @@ class Program
 
     }
 
-    //Metod som sköter hanteringen av registreringsdata, sparar denna till databasen.
+    //Hanterar registrering och sparar denna i MongoDB.
     static void Register(string registrationData, NetworkStream stream)
     {
         //Delar upp registreringsdatan i delar baserat på kommatecken.
@@ -113,56 +123,27 @@ class Program
         string[] data = registrationData.Split(',');
         string reply = "";
 
-        //Kontrollerar registreringsdatan i isValidString och kontrollerar att den är i 2 delar.
-        if (IsValidString(data[0]) && IsValidString(data[1]) && data.Length == 2)
+        var maxUserId = collection.AsQueryable()
+            .OrderByDescending(u => u.UserId)
+            .Select(u => u.UserId)
+            .FirstOrDefault();
+
+        var user = new User
         {
-            //Ansluter till MongoDB och lägger till användaren i databasen.
-            const string databaseString = "mongodb://localhost:27017";
-            MongoClient dbClient = new MongoClient(databaseString);
-            var database = dbClient.GetDatabase("Users");
-            var collection = database.GetCollection<User>("users");
+            UserId = maxUserId + 1,
+            Username = data[0],
+            Password = data[1],
+            Message = new List<string>()
+        };
 
-            var maxUserId = collection.AsQueryable()
-        .OrderByDescending(u => u.UserId)
-        .Select(u => u.UserId)
-        .FirstOrDefault();
-
-            var user = new User
-            {
-                UserId = maxUserId + 1,
-                Username = data[0],
-                Password = data[1],
-                Message = new List<string>()
-            };
-
-            collection.InsertOne(user);
-            Console.WriteLine($"User {data[0]} registered.");
-            reply = ($"User {data[0]} registered.");
-            SendMessageToClient(stream, reply);
-
-        }
-        else
-        {
-            //Skriv ut felmeddelande om registreringsdatan är ogiltig.
-            Console.WriteLine("Invalid registration data or format.");
-            reply = "Invalid registration data or format.";
-            SendMessageToClient(stream, reply);
-        }
-
-        //Testar så att registreringsdatan inte är tom eller innehåller mellanslag eller kommatecken.
-        bool IsValidString(string str)
-        {
-            return !string.IsNullOrWhiteSpace(str) && !str.Contains(" ") && !str.Contains(",");
-        }
+        collection.InsertOne(user);
+        Console.WriteLine($"User {data[0]} registered.");
+        reply = ($"User {data[0]} registered.");
+        SendMessageToClient(stream, reply);
     }
 
     static void LogIn(string loginData, NetworkStream stream, TcpClient client)
     {
-        const string databaseString = "mongodb://localhost:27017";
-        MongoClient dbClient = new MongoClient(databaseString);
-        var database = dbClient.GetDatabase("Users");
-        var collection = database.GetCollection<User>("users");
-
         string[] data = loginData.Split(',');
         string username = data[0];
         string password = data[1];
@@ -190,18 +171,13 @@ class Program
         else
         {
             Console.WriteLine("Invalid username or password");
-            reply = "Invalid username or password!";
+            reply = "There is no such user in the database. Please try again.";
             SendMessageToClient(stream, reply);
         }
     }
 
     static void SaveMessage(string messageData, NetworkStream stream)
     {
-        const string databaseString = "mongodb://localhost:27017";
-        MongoClient dbClient = new MongoClient(databaseString);
-        var database = dbClient.GetDatabase("Users");
-        var collection = database.GetCollection<User>("users");
-
         string[] data = messageData.Split(',');
         string username = data[0];
         string message = data[1];
@@ -214,10 +190,11 @@ class Program
             var update = Builders<User>.Update.Push(u => u.Message, message);
             collection.UpdateOne(filter, update);
             Console.WriteLine("Message saved successfully.");
-            replyMessage = "Message saved successfully.";
+            replyMessage = "Message saved successfully.\n";
             SendMessageToClient(stream, replyMessage);
         }
-        else { 
+        else
+        {
             Console.WriteLine($"{stream} User not found.");
             replyMessage = "User not found.";
             SendMessageToClient(stream, replyMessage);
