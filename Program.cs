@@ -154,9 +154,12 @@ class Server
                 SendMessageToClient(otherClient.Key.GetStream(), $"{username} has logged in");
             }
 
-            foreach (var userMessage in user.Message) //Iterates through Messages property(the list) of the user
+            int messagesToPrint = Math.Min(30, user.Message.Count);
+            int counter = 1;
+            for (int i = user.Message.Count - messagesToPrint; i < user.Message.Count; i++)
             {
-                SendMessageToClient(stream, $"\n{username}: {userMessage}"); //Uses SendToClient method to send messages to client
+                SendMessageToClient(stream, $"\n{counter}.{username}: {user.Message[i]}");
+                counter++;
             }
         }
         else
