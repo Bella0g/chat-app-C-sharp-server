@@ -25,7 +25,7 @@ class Server
     {
 
         //Anger att tcpListener ska lyssna efter alla nätverksgränssnitt på port 27500.
-        tcpListener = new TcpListener(IPAddress.Any, 27500);
+        tcpListener = new TcpListener(IPAddress.Any, 27550);
         tcpListener.Start();
         Console.WriteLine("Server is listening on port 27500");
         Mongodb();
@@ -98,16 +98,6 @@ class Server
         }
         finally
         {
-
-            //foreach (var entry in ConnectedUsers)
-            //{
-            //    if (entry.Value == stream)
-            //    {
-            //        connectedUsers.Remove(client);
-            //        break;
-            //    }
-            //}
-
             //Stänger anslutningen till clienten.
             client.Close();
         }
@@ -159,14 +149,15 @@ class Server
             Console.WriteLine($"{username} has logged in.");
             SendMessageToClient(stream, reply);
 
+            foreach (var otherClient in connectedUsers.Where(x => x.Key != client))
+            {
+                SendMessageToClient(otherClient.Key.GetStream(), $"{username} has logged in");
+            }
+
             foreach (var userMessage in user.Message) //Iterates through Messages property(the list) of the user
             {
                 SendMessageToClient(stream, $"\n{username}: {userMessage}"); //Uses SendToClient method to send messages to client
             }
-            //foreach (var clientUsers in connectedUsers)
-            //{
-            //    Console.WriteLine($"{clientUsers.Value} has logged in.");
-            //}
         }
         else
         {
@@ -215,12 +206,12 @@ class Server
             var clientToRemove = connectedUsers.FirstOrDefault(x => x.Value == username).Key;
             connectedUsers.Remove(clientToRemove);
             Console.WriteLine($"{username} has logged out.");
-        }
-        //foreach (var clientUsers in connectedUsers) 
-        //{
-        //    Console.WriteLine($"{clientUsers.Value} has logged out.");
-        //}
-    }
 
+            foreach (var otherClient in connectedUsers.Where(x => x.Key != client))
+            {
+                SendMessageToClient(otherClient.Key.GetStream(), $"{username} has logged out");
+            }
+        }
+    }
 }
 
