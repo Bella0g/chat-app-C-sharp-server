@@ -23,7 +23,6 @@ class Server
 
     static void Main(string[] args)
     {
-
         //Anger att tcpListener ska lyssna efter alla nätverksgränssnitt på port 27500.
         tcpListener = new TcpListener(IPAddress.Any, 27500);
         tcpListener.Start();
@@ -101,7 +100,6 @@ class Server
             //Stänger anslutningen till clienten.
             client.Close();
         }
-
     }
 
     //Hanterar registrering och sparar denna i MongoDB.
@@ -153,7 +151,7 @@ class Server
             int counter = 1;
             for (int i = user.Message.Count - messagesToPrint; i < user.Message.Count; i++)
             {
-                SendMessageToClient(stream, $"\n{counter}.{username}: {user.Message[i]}");
+                SendMessageToClient(stream, $"\n{counter}. {user.Message[i]}");
                 counter++;
             }
 
@@ -197,30 +195,26 @@ class Server
         string[] data = messageData.Split(',');
         string username = data[0];
         string message = data[1];
-        string replyMessage = "";
+        
+        SavePublicMessage(username, message);
 
-        var filter = Builders<User>.Filter.Eq(u => u.Username, username);
-        var user = collection.Find(filter).FirstOrDefault();
-        if (user != null)
+        Console.WriteLine("Message saved successfully.");
+
+        foreach (var otherClient in connectedUsers.Where(x => x.Key != client))
         {
-            var update = Builders<User>.Update.Push(u => u.Message, message);
-            collection.UpdateOne(filter, update);
-            Console.WriteLine("Message saved successfully.");
- 
-            foreach (var otherClient in connectedUsers.Where(x => x.Key != client))
-            {
-                SendMessageToClient(otherClient.Key.GetStream(), $"{username}: {message}");
-            }
-        }
-        else
-        {
-            Console.WriteLine($"{stream} User not found.");
-            replyMessage = "User not found.";
-            SendMessageToClient(stream, replyMessage);
+            SendMessageToClient(otherClient.Key.GetStream(), $"{username}: {message}");
         }
     }
 
-    //static void SaveMessage(string messageData, NetworkStream stream)
+    static void SavePublicMessage(string senderUsername, string message)
+    {
+        var filter = Builders<User>.Filter.Empty;
+        var update = Builders<User>.Update.Push(u => u.Message, $"{senderUsername} (Public): {message}");
+        collection.UpdateMany(filter, update);
+        Console.WriteLine("Message saved successfully to all users.");
+    }
+
+    //static void SavePrivateMessage(string messageData, NetworkStream stream)
     //{
     //    string[] data = messageData.Split(',');
     //    string username = data[0];
