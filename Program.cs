@@ -25,7 +25,7 @@ class Server
     {
 
         //Anger att tcpListener ska lyssna efter alla nätverksgränssnitt på port 27500.
-        tcpListener = new TcpListener(IPAddress.Any, 27550);
+        tcpListener = new TcpListener(IPAddress.Any, 27500);
         tcpListener.Start();
         Console.WriteLine("Server is listening on port 27500");
         Mongodb();
@@ -81,9 +81,9 @@ class Server
                 {
                     LogIn(dataParts[1], stream, client);
                 }
-                else if (dataType == "MESSAGE")
+                else if (dataType == "PUBLIC_MESSAGE")
                 {
-                    SaveMessage(dataParts[1], stream);
+                    PublicMessage(dataParts[1], stream, client);
                 }
                 else if (dataType == "LOGOUT")
                 {
@@ -149,11 +149,6 @@ class Server
             Console.WriteLine($"{username} has logged in.");
             SendMessageToClient(stream, reply);
 
-            foreach (var otherClient in connectedUsers.Where(x => x.Key != client))
-            {
-                SendMessageToClient(otherClient.Key.GetStream(), $"{username} has logged in");
-            }
-
             int messagesToPrint = Math.Min(30, user.Message.Count);
             int counter = 1;
             for (int i = user.Message.Count - messagesToPrint; i < user.Message.Count; i++)
@@ -161,37 +156,17 @@ class Server
                 SendMessageToClient(stream, $"\n{counter}.{username}: {user.Message[i]}");
                 counter++;
             }
+
+            foreach (var otherClient in connectedUsers.Where(x => x.Key != client))
+            {
+                SendMessageToClient(otherClient.Key.GetStream(), $"{username} has logged in");
+            }
         }
         else
         {
             Console.WriteLine("Invalid username or password");
             reply = "There is no such user in the database. Please try again.";
             SendMessageToClient(stream, reply);
-        }
-    }
-
-    static void SaveMessage(string messageData, NetworkStream stream)
-    {
-        string[] data = messageData.Split(',');
-        string username = data[0];
-        string message = data[1];
-        string replyMessage = "";
-
-        var filter = Builders<User>.Filter.Eq(u => u.Username, username);
-        var user = collection.Find(filter).FirstOrDefault();
-        if (user != null)
-        {
-            var update = Builders<User>.Update.Push(u => u.Message, message);
-            collection.UpdateOne(filter, update);
-            Console.WriteLine("Message saved successfully.");
-            replyMessage = "Message saved successfully.\n";
-            SendMessageToClient(stream, replyMessage);
-        }
-        else
-        {
-            Console.WriteLine($"{stream} User not found.");
-            replyMessage = "User not found.";
-            SendMessageToClient(stream, replyMessage);
         }
     }
 
@@ -216,5 +191,58 @@ class Server
             }
         }
     }
+
+    static void PublicMessage(string messageData, NetworkStream stream, TcpClient client)
+    {
+        string[] data = messageData.Split(',');
+        string username = data[0];
+        string message = data[1];
+        string replyMessage = "";
+
+        var filter = Builders<User>.Filter.Eq(u => u.Username, username);
+        var user = collection.Find(filter).FirstOrDefault();
+        if (user != null)
+        {
+            var update = Builders<User>.Update.Push(u => u.Message, message);
+            collection.UpdateOne(filter, update);
+            Console.WriteLine("Message saved successfully.");
+ 
+            foreach (var otherClient in connectedUsers.Where(x => x.Key != client))
+            {
+                SendMessageToClient(otherClient.Key.GetStream(), $"{username}: {message}");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"{stream} User not found.");
+            replyMessage = "User not found.";
+            SendMessageToClient(stream, replyMessage);
+        }
+    }
+
+    //static void SaveMessage(string messageData, NetworkStream stream)
+    //{
+    //    string[] data = messageData.Split(',');
+    //    string username = data[0];
+    //    string message = data[1];
+    //    string replyMessage = "";
+
+    //    var filter = Builders<User>.Filter.Eq(u => u.Username, username);
+    //    var user = collection.Find(filter).FirstOrDefault();
+    //    if (user != null)
+    //    {
+    //        var update = Builders<User>.Update.Push(u => u.Message, message);
+    //        collection.UpdateOne(filter, update);
+    //        Console.WriteLine("Message saved successfully.");
+    //        replyMessage = "Message saved successfully.\n";
+    //        SendMessageToClient(stream, replyMessage);
+    //    }
+    //    else
+    //    {
+    //        Console.WriteLine($"{stream} User not found.");
+    //        replyMessage = "User not found.";
+    //        SendMessageToClient(stream, replyMessage);
+    //    }
+    //}
 }
 
