@@ -103,6 +103,7 @@ class Server
         finally
         {
             //Stänger anslutningen till clienten.
+            connectedUsers.Remove(client);
             client.Close();
         }
     }
@@ -232,12 +233,19 @@ class Server
         var rFilter = Builders<User>.Filter.Eq(u => u.Username, receiver);
         var user = collection.Find(uFilter).FirstOrDefault();
         var receiverU = collection.Find(rFilter).FirstOrDefault();
-        if (receiver != null)
+        if (receiverU != null)
         {
             var update = Builders<User>.Update.Push(u => u.Message, $"{username} (Private): {message}");
+
             collection.UpdateOne(uFilter, update);
             collection.UpdateOne(rFilter, update);
             Console.WriteLine("Message saved successfully.");
+
+            var receiverUser = connectedUsers.FirstOrDefault(x => x.Value == receiver);
+            if (receiverUser.Key != null)
+            {
+                SendMessageToClient(receiverUser.Key.GetStream(), $"{username}: {message}");
+            }
         }
         else
         {
