@@ -24,6 +24,7 @@ class Server
     static void Main(string[] args)
     {
         //Anger att tcpListener ska lyssna efter alla nätverksgränssnitt på port 27500.
+
         tcpListener = new TcpListener(IPAddress.Any, 27500);
         tcpListener.Start();
         Console.WriteLine("Server is listening on port 27500");
@@ -83,6 +84,10 @@ class Server
                 else if (dataType == "PUBLIC_MESSAGE")
                 {
                     PublicMessage(dataParts[1], stream, client);
+                }
+                else if (dataType == "PRIVATE_MESSAGE")
+                {
+                    PrivateMessage(dataParts[1], stream, client);
                 }
                 else if (dataType == "LOGOUT")
                 {
@@ -195,7 +200,7 @@ class Server
         string[] data = messageData.Split(',');
         string username = data[0];
         string message = data[1];
-        
+
         SavePublicMessage(username, message);
 
         Console.WriteLine("Message saved successfully.");
@@ -214,29 +219,32 @@ class Server
         Console.WriteLine("Message saved successfully to all users.");
     }
 
-    //static void SavePrivateMessage(string messageData, NetworkStream stream)
-    //{
-    //    string[] data = messageData.Split(',');
-    //    string username = data[0];
-    //    string message = data[1];
-    //    string replyMessage = "";
+    static void PrivateMessage(string messageData, NetworkStream stream, TcpClient client)
+    {
+        string[] data = messageData.Split(',');
+        string username = data[0];
+        string receiver = data[1];
+        string message = data[2];
+        string replyMessage = "";
 
-    //    var filter = Builders<User>.Filter.Eq(u => u.Username, username);
-    //    var user = collection.Find(filter).FirstOrDefault();
-    //    if (user != null)
-    //    {
-    //        var update = Builders<User>.Update.Push(u => u.Message, message);
-    //        collection.UpdateOne(filter, update);
-    //        Console.WriteLine("Message saved successfully.");
-    //        replyMessage = "Message saved successfully.\n";
-    //        SendMessageToClient(stream, replyMessage);
-    //    }
-    //    else
-    //    {
-    //        Console.WriteLine($"{stream} User not found.");
-    //        replyMessage = "User not found.";
-    //        SendMessageToClient(stream, replyMessage);
-    //    }
-    //}
+
+        var uFilter = Builders<User>.Filter.Eq(u => u.Username, username);
+        var rFilter = Builders<User>.Filter.Eq(u => u.Username, receiver);
+        var user = collection.Find(uFilter).FirstOrDefault();
+        var receiverU = collection.Find(rFilter).FirstOrDefault();
+        if (receiver != null)
+        {
+            var update = Builders<User>.Update.Push(u => u.Message, $"{username} (Private): {message}");
+            collection.UpdateOne(uFilter, update);
+            collection.UpdateOne(rFilter, update);
+            Console.WriteLine("Message saved successfully.");
+        }
+        else
+        {
+            Console.WriteLine($"{stream} User not found.");
+            replyMessage = "User not found.";
+            SendMessageToClient(stream, replyMessage);
+        }
+    }
 }
 
